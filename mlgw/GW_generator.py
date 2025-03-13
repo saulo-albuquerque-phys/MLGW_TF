@@ -1889,17 +1889,17 @@ class mode_generator_NN(mode_generator_base):
 		for comps, model in self.amp_models.items():
 			#amp_pred[:,comps_to_list(comps)] = model(augment_features(theta, model.features)).numpy()
 			input_ = tf.constant(augment_features(theta, model.features).astype(np.float32))
-			amp_pred[:,comps_to_list(comps)] = model(input_)[0].numpy()
+			amp_pred[:,comps_to_list(comps)] = model(input_)[0]
 		
 		for comps, model in self.ph_models.items():
 			#ph_pred[:,comps_to_list(comps)] = model(augment_features(theta, model.features)).numpy()
 			input_ = tf.constant(augment_features(theta, model.features).astype(np.float32))
-			ph_pred[:,comps_to_list(comps)] = model(input_)[0].numpy()
+			ph_pred[:,comps_to_list(comps)] = model(input_)[0]
         
 		for comps, model in self.ph_residual_models.items():
 			#ph_pred[:,comps_to_list(comps)] += model(augment_features(theta, model.features)).numpy()*self.ph_res_coefficients[comps]
 			input_ = tf.constant(augment_features(theta, model.features).astype(np.float32))
-			ph_pred[:,comps_to_list(comps)] += model(input_)[0].numpy()*self.ph_res_coefficients[comps]
+			ph_pred[:,comps_to_list(comps)] += model(input_)[0]*self.ph_res_coefficients[comps]
 
 		return amp_pred, ph_pred
 
