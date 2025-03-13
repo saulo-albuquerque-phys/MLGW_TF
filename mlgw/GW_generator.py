@@ -1883,8 +1883,8 @@ class mode_generator_NN(mode_generator_base):
 		"""
 		comps_to_list = lambda comps_str: [int(c) for c in comps_str]
 		#new way
-		amp_pred = np.zeros((theta.shape[0], self.amp_PCA.get_dimensions()[1]))
-		ph_pred = np.zeros((theta.shape[0], self.ph_PCA.get_dimensions()[1]))
+		amp_pred = tf.zeros((theta.shape[0], self.amp_PCA.get_dimensions()[1]))
+		ph_pred = tf.zeros((theta.shape[0], self.ph_PCA.get_dimensions()[1]))
 		
 		for comps, model in self.amp_models.items():
 			#amp_pred[:,comps_to_list(comps)] = model(augment_features(theta, model.features)).numpy()
