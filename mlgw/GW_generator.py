@@ -1882,25 +1882,37 @@ class mode_generator_NN(mode_generator_base):
 				shape (N,K) - PCA reduced amplitude and phase
 		"""
 		comps_to_list = lambda comps_str: [int(c) for c in comps_str]
-		#new way
-		amp_pred = np.zeros((theta.shape[0], self.amp_PCA.get_dimensions()[1]))
-		ph_pred = np.zeros((theta.shape[0], self.ph_PCA.get_dimensions()[1]))
+		# Initialize amp_pred and ph_pred with TensorFlow
+		amp_pred = tf.zeros((theta.shape[0], self.amp_PCA.get_dimensions()[1]), dtype=tf.float32)
+		ph_pred = tf.zeros((theta.shape[0], self.ph_PCA.get_dimensions()[1]), dtype=tf.float32)
 		
 		for comps, model in self.amp_models.items():
 			#amp_pred[:,comps_to_list(comps)] = model(augment_features(theta, model.features)).numpy()
 			input_ = tf.constant(augment_features(theta, model.features).astype(np.float32))
-			amp_pred[:,comps_to_list(comps)] = model(input_)[0]
+			model_output=model(input_)[0]
+			comps_list = comps_to_list(comps)
+			indices = tf.reshape(tf.constant(comps_list, dtype=tf.int32), (-1, 1)) 
+			updates = tf.reshape(model_output, (-1, 1))
+			amp_pred = tf.tensor_scatter_nd_update(amp_pred, indices, updates)
 		
 		for comps, model in self.ph_models.items():
 			#ph_pred[:,comps_to_list(comps)] = model(augment_features(theta, model.features)).numpy()
 			input_ = tf.constant(augment_features(theta, model.features).astype(np.float32))
-			ph_pred[:,comps_to_list(comps)] = model(input_)[0]
+			model_output = model(input_)[0]
+			comps_list = comps_to_list(comps)
+			indices = tf.reshape(tf.constant(comps_list, dtype=tf.int32), (-1, 1))  # Reshape to use as indices
+			updates = tf.reshape(model_output, (-1, 1))  # Reshape output if needed
+			ph_pred = tf.tensor_scatter_nd_update(ph_pred, indices, updates)
         
 		for comps, model in self.ph_residual_models.items():
 			#ph_pred[:,comps_to_list(comps)] += model(augment_features(theta, model.features)).numpy()*self.ph_res_coefficients[comps]
 			input_ = tf.constant(augment_features(theta, model.features).astype(np.float32))
-			ph_pred[:,comps_to_list(comps)] += model(input_)[0]*self.ph_res_coefficients[comps]
-
+			model_output = model(input_)[0]
+			comps_list = comps_to_list(comps)
+			indices = tf.reshape(tf.constant(comps_list, dtype=tf.int32), (-1, 1))  # Reshape to use as indices
+			updates = tf.reshape(model_output, (-1, 1)) * self.ph_res_coefficients[comps]
+			ph_pred = tf.tensor_scatter_nd_update(ph_pred, indices, tf.gather(ph_pred, indices) + updates)
+			
 		return amp_pred, ph_pred
 
 class mode_generator_MoE(mode_generator_base):
