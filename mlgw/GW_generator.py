@@ -1825,12 +1825,12 @@ class mode_generator_NN(mode_generator_base):
 				new_model = mlgw_NN.load_from_file(nn_file)
 				
 					#Distilling the model for fast inference
-				#tf_function = tf.function(new_model,
-				#		input_signature=(tf.TensorSpec(shape=new_model.inputs[0].shape, dtype=tf.float32),))
-				#tf_function = convert_variables_to_constants_v2(tf_function.get_concrete_function())
-				#tf_function.features = new_model.features #Adding features by hand :D
+				tf_function = tf.function(new_model,
+						input_signature=(tf.TensorSpec(shape=new_model.inputs[0].shape, dtype=tf.float32),))
+				tf_function = convert_variables_to_constants_v2(tf_function.get_concrete_function())
+				tf_function.features = new_model.features #Adding features by hand :D
 				
-				dict_to_fill[comps] = new_model
+				dict_to_fill[comps] = tf_function
 						
 						
 				#dict_to_fill[comps] = tf.function(new_model,
@@ -1889,17 +1889,17 @@ class mode_generator_NN(mode_generator_base):
 		for comps, model in self.amp_models.items():
 			#amp_pred[:,comps_to_list(comps)] = model(augment_features(theta, model.features)).numpy()
 			input_ = tf.constant(augment_features(theta, model.features).astype(np.float32))
-			amp_pred[:,comps_to_list(comps)] = model(input_)[0]
+			amp_pred[:,comps_to_list(comps)] = model(input_)
 		
 		for comps, model in self.ph_models.items():
 			#ph_pred[:,comps_to_list(comps)] = model(augment_features(theta, model.features)).numpy()
 			input_ = tf.constant(augment_features(theta, model.features).astype(np.float32))
-			ph_pred[:,comps_to_list(comps)] = model(input_)[0]
+			ph_pred[:,comps_to_list(comps)] = model(input_)
         
 		for comps, model in self.ph_residual_models.items():
 			#ph_pred[:,comps_to_list(comps)] += model(augment_features(theta, model.features)).numpy()*self.ph_res_coefficients[comps]
 			input_ = tf.constant(augment_features(theta, model.features).astype(np.float32))
-			ph_pred[:,comps_to_list(comps)] += model(input_)[0]*self.ph_res_coefficients[comps]
+			ph_pred[:,comps_to_list(comps)] += model(input_)*self.ph_res_coefficients[comps]
 
 		return amp_pred, ph_pred
 
