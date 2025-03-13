@@ -1954,6 +1954,8 @@ class mode_generator_NN(mode_generator_base):
 			if comps=='01':
 				input_ = tf.constant(augment_features(theta, model.features).astype(np.float32))
 				model_output_01 = model(input_)[0]
+			else:
+				None
 		return model_output_01
 	
 	def get_red_coefficients_ph_2345(self, theta):
@@ -1972,10 +1974,12 @@ class mode_generator_NN(mode_generator_base):
 		# Initialize amp_pred and ph_pred with TensorFlow
 		for comps, model in self.ph_models.items():
 			#ph_pred[:,comps_to_list(comps)] = model(augment_features(theta, model.features)).numpy()
-			elif comps=='2345':
+			if comps=='2345':
 				input_ = tf.constant(augment_features(theta, model.features).astype(np.float32))
 				model_output_2345 = model(input_)[0]
 				#print(model_output_2345)
+			else:
+				None
 		return model_output_2345
 	
 	def get_red_coefficients_res_ph(self, theta):
