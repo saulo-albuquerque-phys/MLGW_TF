@@ -1887,18 +1887,18 @@ class mode_generator_NN(mode_generator_base):
 		for comps, model in self.amp_models.items():
 			#amp_pred[:,comps_to_list(comps)] = model(augment_features(theta, model.features)).numpy()
 			input_ = tf.constant(augment_features(theta, model.features).astype(np.float32))
-			amp_pred=model(input_)[0]
+			amp_pred=model(input_)
 			#print(amp_pred)   
 		
 		for comps, model in self.ph_models.items():
 			#ph_pred[:,comps_to_list(comps)] = model(augment_features(theta, model.features)).numpy()
 			if comps=='01':
 				input_ = tf.constant(augment_features(theta, model.features).astype(np.float32))
-				model_output_01 = model(input_)[0]
+				model_output_01 = model(input_)
 				#print(model_output_01)
 			elif comps=='2345':
 				input_ = tf.constant(augment_features(theta, model.features).astype(np.float32))
-				model_output_2345 = model(input_)[0]
+				model_output_2345 = model(input_)
 				#print(model_output_2345)
 			else:
 				print("wrong model found!")
@@ -1908,7 +1908,7 @@ class mode_generator_NN(mode_generator_base):
 		for comps, model in self.ph_residual_models.items():
 			#ph_pred[:,comps_to_list(comps)] += model(augment_features(theta, model.features)).numpy()*self.ph_res_coefficients[comps]
 			input_ = tf.constant(augment_features(theta, model.features).astype(np.float32))
-			model_output = model(input_)[0]
+			model_output = model(input_)
 			ph_res_pred=tf.concat([model_output,tf.zeros((model_output_2345.shape))],axis=1)
 			#print(ph_res_pred)
 		ph_pred=ph_pred+ph_res_pred
