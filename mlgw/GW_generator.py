@@ -1883,23 +1883,23 @@ class mode_generator_NN(mode_generator_base):
 		"""
 		comps_to_list = lambda comps_str: [int(c) for c in comps_str]
 		#new way
-		amp_pred = tf.zeros((theta.shape[0], self.amp_PCA.get_dimensions()[1]))
-		ph_pred = tf.zeros((theta.shape[0], self.ph_PCA.get_dimensions()[1]))
+		amp_pred = np.zeros((theta.shape[0], self.amp_PCA.get_dimensions()[1]))
+		ph_pred = np.zeros((theta.shape[0], self.ph_PCA.get_dimensions()[1]))
 		
 		for comps, model in self.amp_models.items():
 			#amp_pred[:,comps_to_list(comps)] = model(augment_features(theta, model.features)).numpy()
 			input_ = tf.constant(augment_features(theta, model.features).astype(np.float32))
-			amp_pred[:,comps_to_list(comps)] = model(input_)
+			amp_pred[:,comps_to_list(comps)] = model(input_)[0]
 		
 		for comps, model in self.ph_models.items():
 			#ph_pred[:,comps_to_list(comps)] = model(augment_features(theta, model.features)).numpy()
 			input_ = tf.constant(augment_features(theta, model.features).astype(np.float32))
-			ph_pred[:,comps_to_list(comps)] = model(input_)
+			ph_pred[:,comps_to_list(comps)] = model(input_)[0]
         
 		for comps, model in self.ph_residual_models.items():
 			#ph_pred[:,comps_to_list(comps)] += model(augment_features(theta, model.features)).numpy()*self.ph_res_coefficients[comps]
 			input_ = tf.constant(augment_features(theta, model.features).astype(np.float32))
-			ph_pred[:,comps_to_list(comps)] += model(input_)*self.ph_res_coefficients[comps]
+			ph_pred[:,comps_to_list(comps)] += model(input_)[0]*self.ph_res_coefficients[comps]
 
 		return amp_pred, ph_pred
 
