@@ -2087,14 +2087,40 @@ class mode_generator_NN(mode_generator_base):
 		theta_amp=self.get_red_input_amp_1(theta)
 		theta_01=self.get_red_input_ph_01_1(theta)
 		theta_2345=self.get_red_input_ph_2345_1(theta)
-		theta_res_01=self.get_red_input_res_ph_2345_1(theta)
+		theta_res_01=self.get_red_input_res_ph_1(theta)
 		red_coef_amp=self.get_red_coefficients_amp_1(theta_amp)
 		red_coef_ph_2345=self.get_red_coefficients_ph_2345_1(theta_2345)
 		red_coef_ph_01=self.get_red_coefficients_ph_01_1(theta_01)
-		red_coef_res_ph_01+=self.get_red_coefficients_red_ph_1(theta_res_01)
+		red_coef_res_ph_01+=self.get_red_coefficients_res_ph_1(theta_res_01)
 		red_coef_ph=tf.concat([red_coef_res_ph_01,red_coef_ph_2345],axis=1)
 		return red_coef_amp, red_coef_ph
-
+	
+	def get_red_coefficients_all(self,theta):
+		theta_amp=self.get_red_input_amp_1(theta)
+		theta_01=self.get_red_input_ph_01_1(theta)
+		theta_2345=self.get_red_input_ph_2345_1(theta)
+		theta_res_01=self.get_red_input_res_ph_1(theta)
+		with tf.GradientTape() as tapeA:
+			tapeA.watch(theta_amp)
+			red_coef_amp=self.get_red_coefficients_amp_1(theta_amp)
+			grad_a=tapeA.jacobian(red_coef_amp,theta_amp)
+		with tf.GradientTape() as tapePh01:
+			tapePh01.watch(theta_01)
+			red_coef_ph_01=self.get_red_coefficients_ph_01_1(theta_01)
+			grad_ph_01_1=tapePh01.jacobian(red_coef_ph_01,theta_01)
+		grad_ph_01=grad_ph_01_1[:,:,:,:theta.shape[1]]
+		with tf.GradientTape() as tapeResPh01:
+			tapeResPh01.watch(theta_res_01)
+			red_coef_ph_res_01=self.get_red_coefficients_res_ph_1(theta_res_01)
+			grad_ph_01_res_1=tapePh01.jacobian(red_coef_ph_res_01,theta_res_01)
+		grad_ph_01_res=grad_ph_01_res_1[:,:,:,:theta.shape[1]]
+		grad_ph_01_tot=grad_ph_01+grad_ph_01_res
+		with tf.GradientTape as tapePh2345:
+			tapePh2345.watch(theta_2345)
+			red_coef_ph_2345=self.get_red_coefficients_ph_2345_1(theta_2345)
+			grad_ph_2345=tapePh2345.jacobian(red_coef_ph_2345,theta_2345)
+		grad_ph=tf.concat([grad_ph_01_tot,grad_ph_2345],axis=1)
+		return grad_a, grad_ph
 	
 
 
