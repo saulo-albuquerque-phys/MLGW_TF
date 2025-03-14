@@ -2124,8 +2124,8 @@ class mode_generator_NN(mode_generator_base):
 		grad_a_fin = tf.zeros_like(grad_a[:, :, 0]) # or tf.zeros with appropriate shape
 		grad_ph_fin = tf.zeros_like(grad_ph[:, :, 0])
 		for i in range(theta.shape[0]):
-                	grad_a_fin = tf.tensor_scatter_nd_update(grad_a_fin, [[i]], [grad_a[i,:,i]]) # Use tf.tensor_scatter_nd_update
-                	grad_ph_fin = tf.tensor_scatter_nd_update(grad_ph_fin, [[i]], [grad_ph[i,:,i]]) # Use tf.tensor_scatter_nd_update
+			grad_a_fin = tf.tensor_scatter_nd_update(grad_a_fin, [[i]], [grad_a[i,:,i]]) # Use tf.tensor_scatter_nd_update
+			grad_ph_fin = tf.tensor_scatter_nd_update(grad_ph_fin, [[i]], [grad_ph[i,:,i]]) # Use tf.tensor_scatter_nd_update
 			print(grad_a_fin)
 			print(grad_ph_fin)
 		
