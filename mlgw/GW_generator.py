@@ -2116,7 +2116,7 @@ class mode_generator_NN(mode_generator_base):
 			grad_ph_01_res_1=tapeResPh01.jacobian(red_coef_ph_res_01,theta_res_01)
 		grad_ph_01_res=grad_ph_01_res_1[:,:,:,:theta.shape[1]]
 		grad_ph_01_tot=grad_ph_01+grad_ph_01_res
-		with tf.GradientTape as tapePh2345:
+		with tf.GradientTape() as tapePh2345:
 			tapePh2345.watch(theta_2345)
 			red_coef_ph_2345=self.get_red_coefficients_ph_2345_1(theta_2345)
 			grad_ph_2345=tapePh2345.jacobian(red_coef_ph_2345,theta_2345)
