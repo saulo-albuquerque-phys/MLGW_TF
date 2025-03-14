@@ -2121,6 +2121,14 @@ class mode_generator_NN(mode_generator_base):
 			red_coef_ph_2345=self.get_red_coefficients_ph_2345_1(theta_2345)
 			grad_ph_2345=tapePh2345.jacobian(red_coef_ph_2345,theta_2345)
 		grad_ph=tf.concat([grad_ph_01_tot,grad_ph_2345],axis=1)
+		grad_a_fin=grad_a
+		grad_ph_fin=grad_ph
+		for i in range(theta.shape[0]):
+			grad_a_fin[i]=grad_a[i,:,i]
+			grad_ph_fin[i]=grad_ph[i,:,i]
+			print(grad_a_fin)
+			print(grad_ph_fin)
+		
 		return grad_a, grad_ph
 	
 
