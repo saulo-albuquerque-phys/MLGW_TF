@@ -2090,8 +2090,9 @@ class mode_generator_NN(mode_generator_base):
 		theta_res_01=self.get_red_input_res_ph_1(theta)
 		red_coef_amp=self.get_red_coefficients_amp_1(theta_amp)
 		red_coef_ph_2345=self.get_red_coefficients_ph_2345_1(theta_2345)
-		red_coef_ph_01=self.get_red_coefficients_ph_01_1(theta_01)
-		red_coef_res_ph_01+=self.get_red_coefficients_res_ph_1(theta_res_01)
+		red_coef_ph_01_0=self.get_red_coefficients_ph_01_1(theta_01)
+		red_coef_res_ph_01=self.get_red_coefficients_res_ph_1(theta_res_01)
+		red_coef_ph_01=red_coef_ph_01_0+red_coef_res_ph_01
 		red_coef_ph=tf.concat([red_coef_res_ph_01,red_coef_ph_2345],axis=1)
 		return red_coef_amp, red_coef_ph
 	
