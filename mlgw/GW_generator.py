@@ -1827,8 +1827,8 @@ class mode_generator_NN(mode_generator_base):
 					#Distilling the model for fast inference
 				tf_function = tf.function(new_model,
 						input_signature=(tf.TensorSpec(shape=new_model.inputs[0].shape, dtype=tf.float32),))
-				tf_function = convert_variables_to_constants_v2(tf_function.get_concrete_function())
-				tf_function.features = new_model.features #Adding features by hand :D
+				#tf_function = convert_variables_to_constants_v2(tf_function.get_concrete_function())
+				#tf_function.features = new_model.features #Adding features by hand :D
 				
 				dict_to_fill[comps] = tf_function
 						
