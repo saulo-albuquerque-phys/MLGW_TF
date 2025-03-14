@@ -1957,7 +1957,7 @@ class mode_generator_NN(mode_generator_base):
 		amp_pred=amplitude_model(input_amp)[0]
 		return amp_pred
 
-	def get_red_input_phi_01_1(self, theta):
+	def get_red_input_ph_01_1(self, theta):
 		"""
 		Returns the PCA reduced coefficients, as estimated by the neural network models.
 
@@ -1979,7 +1979,7 @@ class mode_generator_NN(mode_generator_base):
 
 	
 	
-	def get_red_coefficients_phi_01_1(self, theta):
+	def get_red_coefficients_ph_01_1(self, theta):
 		"""
 		Returns the PCA reduced coefficients, as estimated by the neural network models.
 
@@ -2000,7 +2000,7 @@ class mode_generator_NN(mode_generator_base):
 		ph_pred_01=ph_model_01(input_ph_01)[0]
 		return ph_pred_01
 
-	def get_red_input_phi_2345_1(self, theta):
+	def get_red_input_ph_2345_1(self, theta):
 		"""
 		Returns the PCA reduced coefficients, as estimated by the neural network models.
 
@@ -2021,7 +2021,7 @@ class mode_generator_NN(mode_generator_base):
 		return input_ph_2345
 	
 	
-	def get_red_coefficients_phi_2345_1(self, theta):
+	def get_red_coefficients_ph_2345_1(self, theta):
 		"""
 		Returns the PCA reduced coefficients, as estimated by the neural network models.
 
@@ -2042,7 +2042,7 @@ class mode_generator_NN(mode_generator_base):
 		ph_pred_2345=ph_model_2345(input_ph_2345)[0]
 		return ph_pred_2345
 
-	def get_red_input_res_phi_1(self, theta):
+	def get_red_input_res_ph_1(self, theta):
 		"""
 		Returns the PCA reduced coefficients, as estimated by the neural network models.
 
@@ -2062,7 +2062,7 @@ class mode_generator_NN(mode_generator_base):
 		res_input_ph_01 = tf.constant(augment_features(theta, res_ph_model_01.features).astype(np.float32))
 		return res_input_ph_01
 	
-	def get_red_coefficients_res_phi_1(self, theta):
+	def get_red_coefficients_res_ph_1(self, theta):
 		"""
 		Returns the PCA reduced coefficients, as estimated by the neural network models.
 
@@ -2083,96 +2083,19 @@ class mode_generator_NN(mode_generator_base):
 		ph_res_pred_01=res_ph_model_01(res_input_ph_01)[0]
 		return ph_res_pred_01
 	
-	def get_red_coefficients_amp(self, theta):
-		"""
-		Returns the PCA reduced coefficients, as estimated by the neural network models.
+	def get_red_coefficients_all(self,theta):
+		theta_amp=self.get_red_input_amp_1(theta)
+		theta_01=self.get_red_input_ph_01_1(theta)
+		theta_2345=self.get_red_input_ph_2345_1(theta)
+		theta_res_01=self.get_red_input_res_ph_2345_1(theta)
+		red_coef_amp=self.get_red_coefficients_amp_1(theta_amp)
+		red_coef_ph_2345=self.get_red_coefficients_ph_2345_1(theta_2345)
+		red_coef_ph_01=self.get_red_coefficients_ph_01_1(theta_01)
+		red_coef_res_ph_01+=self.get_red_coefficients_red_ph_1(theta_res_01)
+		red_coef_ph=tf.concat([red_coef_res_ph_01,red_coef_ph_2345],axis=1)
+		return red_coef_amp, red_coef_ph
 
-		Input:
-			theta: :class:`~numpy:numpy.ndarray`
-				shape (N,3) - source parameters to make prediction at
-
-		Output:
-			red_amp,red_ph: :class:`~numpy:numpy.ndarray`
-				shape (N,K) - PCA reduced amplitude and phase
-		"""
-		comps_to_list = lambda comps_str: [int(c) for c in comps_str]
-		# Initialize amp_pred and ph_pred with TensorFlow
-		for comps, model in self.amp_models.items():
-			#amp_pred[:,comps_to_list(comps)] = model(augment_features(theta, model.features)).numpy()
-			input_ = tf.constant(augment_features(theta, model.features).astype(np.float32))
-			amp_pred=model(input_)[0]
-			#print(amp_pred)
-		return amp_pred
 	
-	def get_red_coefficients_ph_01(self, theta):
-		"""
-		Returns the PCA reduced coefficients, as estimated by the neural network models.
-
-		Input:
-			theta: :class:`~numpy:numpy.ndarray`
-				shape (N,3) - source parameters to make prediction at
-
-		Output:
-			red_amp,red_ph: :class:`~numpy:numpy.ndarray`
-				shape (N,K) - PCA reduced amplitude and phase
-		"""
-		comps_to_list = lambda comps_str: [int(c) for c in comps_str]
-		for comps, model in self.ph_models.items():
-			#ph_pred[:,comps_to_list(comps)] = model(augment_features(theta, model.features)).numpy()
-			if comps=='01':
-				input_ = tf.constant(augment_features(theta, model.features).astype(np.float32))
-				model_output_01 = model(input_)[0]
-			else:
-				None
-		return model_output_01
-	
-	def get_red_coefficients_ph_2345(self, theta):
-		"""
-		Returns the PCA reduced coefficients, as estimated by the neural network models.
-
-		Input:
-			theta: :class:`~numpy:numpy.ndarray`
-				shape (N,3) - source parameters to make prediction at
-
-		Output:
-			red_amp,red_ph: :class:`~numpy:numpy.ndarray`
-				shape (N,K) - PCA reduced amplitude and phase
-		"""
-		comps_to_list = lambda comps_str: [int(c) for c in comps_str]
-		# Initialize amp_pred and ph_pred with TensorFlow
-		for comps, model in self.ph_models.items():
-			#ph_pred[:,comps_to_list(comps)] = model(augment_features(theta, model.features)).numpy()
-			if comps=='2345':
-				input_ = tf.constant(augment_features(theta, model.features).astype(np.float32))
-				model_output_2345 = model(input_)[0]
-				#print(model_output_2345)
-			else:
-				None
-		return model_output_2345
-	
-	def get_red_coefficients_res_ph(self, theta):
-		"""
-		Returns the PCA reduced coefficients, as estimated by the neural network models.
-
-		Input:
-			theta: :class:`~numpy:numpy.ndarray`
-				shape (N,3) - source parameters to make prediction at
-
-		Output:
-			red_amp,red_ph: :class:`~numpy:numpy.ndarray`
-				shape (N,K) - PCA reduced amplitude and phase
-		"""
-		comps_to_list = lambda comps_str: [int(c) for c in comps_str]
-		# Initialize amp_pred and ph_pred with TensorFlow
-		for comps, model in self.ph_residual_models.items():
-			#ph_pred[:,comps_to_list(comps)] += model(augment_features(theta, model.features)).numpy()*self.ph_res_coefficients[comps]
-			input_ = tf.constant(augment_features(theta, model.features).astype(np.float32))
-			model_output = model(input_)[0]
-			ph_res_pred=tf.concat([model_output,tf.zeros((model_output_2345.shape))],axis=1)
-			#print(ph_res_pred)
-		return ph_res_pred
-
-
 
 
 class mode_generator_MoE(mode_generator_base):
